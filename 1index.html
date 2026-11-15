@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maxfiy Sovg'a — 1126</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #2a0818, #0f050a 75%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 105, 150, 0.28);
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+    .heart-icon {
+      font-size: 42px;
+      margin-bottom: 10px;
+      animation: pulse 1.4s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.14); }
+    }
+    h1 { font-size: 1.4rem; margin-bottom: 6px; color: #ff85a2; }
+    p { font-size: 0.92rem; color: #d8b4c2; margin-bottom: 20px; }
+    .pin-display {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .pin-dot {
+      width: 46px;
+      height: 52px;
+      border-radius: 12px;
+      border: 2px solid rgba(255, 133, 162, 0.4);
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .pin-dot.filled { border-color: #ff4d79; background: rgba(255, 77, 121, 0.2); }
+    .pin-dot.error { border-color: #ff3b30; animation: shake 0.3s; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .key {
+      padding: 14px 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.09);
+      color: #fff;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .key:active { background: #ff4d79; transform: scale(0.95); }
+    .switch-btn {
+      margin-top: 10px;
+      background: transparent;
+      border: 1px solid rgba(255, 133, 162, 0.45);
+      color: #ff9ebb;
+      padding: 9px 16px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .qr-section { display: none; }
+    .qr-section.active { display: block; }
+    .lock-section.hidden { display: none; }
+    canvas {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 12px;
+      max-width: 100%;
+      height: auto;
+      margin: 10px 0 14px;
+      box-shadow: 0 10px 30px rgba(255, 77, 121, 0.35);
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 133, 162, 0.4);
+      background: rgba(0, 0, 0, 0.4);
+      color: #fff;
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+    }
+    .primary-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff4d79, #ff1e56);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .hint { font-size: 0.78rem; color: #cfa5b5; line-height: 1.4; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <!-- 1-BO'LIM: PAROL OYNASI -->
+    <div id="lockSection" class="lock-section">
+      <div class="heart-icon">❤️</div>
+      <h1>Maxfiy Kirish</h1>
+      <p id="statusText">Davom etish uchun 4 xonali parolni kiriting</p>
+
+      <div class="pin-display">
+        <div class="pin-dot" id="d0"></div>
+        <div class="pin-dot" id="d1"></div>
+        <div class="pin-dot" id="d2"></div>
+        <div class="pin-dot" id="d3"></div>
+      </div>
+
+      <div class="keypad">
+        <button class="key" onclick="pressKey('1')">1</button>
+        <button class="key" onclick="pressKey('2')">2</button>
+        <button class="key" onclick="pressKey('3')">3</button>
+        <button class="key" onclick="pressKey('4')">4</button>
+        <button class="key" onclick="pressKey('5')">5</button>
+        <button class="key" onclick="pressKey('6')">6</button>
+        <button class="key" onclick="pressKey('7')">7</button>
+        <button class="key" onclick="pressKey('8')">8</button>
+        <button class="key" onclick="pressKey('9')">9</button>
+        <button class="key" onclick="clearPin()">C</button>
+        <button class="key" onclick="pressKey('0')">0</button>
+        <button class="key" onclick="backspace()">⌫</button>
+      </div>
+
+      <button class="switch-btn" onclick="toggleView(true)">QR Kodni yaratish / yuklab olish</button>
+    </div>
+
+    <!-- 2-BO'LIM: Skanerlanadigan Yurakcha QR Generator -->
+    <div id="qrSection" class="qr-section">
+      <h1>Yurakcha QR Kod</h1>
+      <p>Skanerlash uchun 100% moslashtirilgan shakl</p>
+
+      <input type="text" id="qrUrlInput" placeholder="Sahifa havolasi (URL)" />
+      <button class="primary-btn" onclick="generateHeartQR()">QR Kodni yangilash</button>
+
+      <canvas id="heartCanvas" width="420" height="420"></canvas>
+
+      <button class="primary-btn" onclick="downloadQR()">PNG sifatida yuklab olish</button>
+      <p class="hint">
+        Eslatma: QR kod skanerlanganda parol oynasi ochilishi uchun ushbu sahifa internetga joylangan bo'lishi kerak (hozirgi manzil avtomatik olinadi).
+      </p>
+      <button class="switch-btn" onclick="toggleView(false)">← Parol oynasiga qaytish</button>
+    </div>
+  </div>
+
+  <script>
+    const SECRET_PIN = "1126";
+    const TARGET_DRIVE_URL = "https://drive.google.com/file/d/1Hc2m3vNFiGXacG0vCYy8Nj_ynHsrFQGr/view?usp=drive_link";
+    let currentPin = "";
+
+    function updateDots() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById("d" + i);
+        dot.textContent = currentPin[i] ? "•" : "";
+        dot.classList.toggle("filled", Boolean(currentPin[i]));
+        dot.classList.remove("error");
+      }
+    }
+
+    function pressKey(num) {
+      if (currentPin.length >= 4) return;
+      currentPin += num;
+      updateDots();
+
+      if (currentPin.length === 4) {
+        if (currentPin === SECRET_PIN) {
+          document.getElementById("statusText").textContent = "To'g'ri! Ochilmoqda... ❤️";
+          document.getElementById("statusText").style.color = "#4cd964";
+          setTimeout(() => {
+            window.location.href = TARGET_DRIVE_URL;
+          }, 600);
+        } else {
+          document.getElementById("statusText").textContent = "Parol noto'g'ri, qayta urinib ko'ring";
+          document.getElementById("statusText").style.color = "#ff6b6b";
+          for (let i = 0; i < 4; i++) {
+            document.getElementById("d" + i).classList.add("error");
+          }
+          setTimeout(() => {
+            currentPin = "";
+            updateDots();
+          }, 550);
+        }
+      }
+    }
+
+    function backspace() {
+      currentPin = currentPin.slice(0, -1);
+      updateDots();
+    }
+
+    function clearPin() {
+      currentPin = "";
+      updateDots();
+    }
+
+    function toggleView(showQr) {
+      document.getElementById("lockSection").classList.toggle("hidden", showQr);
+      document.getElementById("qrSection").classList.toggle("active", showQr);
+      if (showQr) {
+        const input = document.getElementById("qrUrlInput");
+        if (!input.value) {
+          input.value = window.location.href.startsWith("http")
+            ? window.location.href
+            : TARGET_DRIVE_URL;
+        }
+        generateHeartQR();
+      }
+    }
+
+    function drawHeartShape(ctx, cx, cy, size) {
+      ctx.beginPath();
+      const topCurveHeight = size * 0.3;
+      ctx.moveTo(cx, cy + topCurveHeight);
+      ctx.bezierCurveTo(cx, cy, cx - size / 2, cy, cx - size / 2, cy + topCurveHeight);
+      ctx.bezierCurveTo(cx - size / 2, cy + (size + topCurveHeight) / 2, cx, cy + (size + topCurveHeight) / 1.35, cx, cy + size);
+      ctx.bezierCurveTo(cx, cy + (size + topCurveHeight) / 1.35, cx + size / 2, cy + (size + topCurveHeight) / 2, cx + size / 2, cy + topCurveHeight);
+      ctx.bezierCurveTo(cx + size / 2, cy, cx, cy, cx, cy + topCurveHeight);
+      ctx.closePath();
+    }
+
+    function generateHeartQR() {
+      const text = document.getElementById("qrUrlInput").value.trim() || TARGET_DRIVE_URL;
+      const canvas = document.getElementById("heartCanvas");
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width;
+      const H = canvas.height;
+
+      // Oq fon
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, W, H);
+
+      // Yuqori xatolik tuzatish darajasi (H = 30% gacha o'zgarishni ko'taradi)
+      const qr = qrcode(0, "H");
+      qr.addData(text);
+      qr.make();
+
+      const count = qr.getModuleCount();
+      const qrAreaSize = 210; // Markazdagi skanerlanadigan QR o'lchami
+      const cellSize = qrAreaSize / count;
+      const offsetX = (W - qrAreaSize) / 2;
+      const offsetY = (H - qrAreaSize) / 2 + 12;
+
+      // 1. Tashqi yurakcha konturi va dekorativ nuqtalar (QR zonadan tashqarida)
+      ctx.save();
+      drawHeartShape(ctx, W / 2, 26, 370);
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = "#e11d48";
+      ctx.stroke();
+
+      // Yurak ichidagi bezak nuqtalar (faqat markaziy QR kvadratdan tashqarida)
+      ctx.clip();
+      for (let y = 25; y < H - 20; y += 11) {
+        for (let x = 25; x < W - 20; x += 11) {
+          const inSafeZone =
+            x > offsetX - 14 &&
+            x < offsetX + qrAreaSize + 14 &&
+            y > offsetY - 14 &&
+            y < offsetY + qrAreaSize + 14;
+
+          if (!inSafeZone && ((x + y) % 22 === 0 || (x * y) % 3 === 0)) {
+            ctx.fillStyle = "#fb7185";
+            ctx.beginPath();
+            ctx.arc(x, y, 3.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+      ctx.restore();
+
+      // 2. Skaner 100% o'qishi uchun toza oq himoya maydoni (Quiet Zone)
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.roundRect(offsetX - 10, offsetY - 10, qrAreaSize + 20, qrAreaSize + 20, 14);
+      ctx.fill();
+
+      // 3. Haqiqiy QR modullarni chizish
+      for (let r = 0; r < count; r++) {
+        for (let c = 0; c < count; c++) {
+          if (qr.isDark(r, c)) {
+            const x = offsetX + c * cellSize;
+            const y = offsetY + r * cellSize;
+
+            // Burchaklardagi 3 ta asosiy kvadratni aniq to'rtburchak qilib chizamiz
+            const isFinder =
+              (r < 7 && c < 7) ||
+              (r < 7 && c >= count - 7) ||
+              (r >= count - 7 && c < 7);
+
+            ctx.fillStyle = isFinder ? "#be123c" : "#881337";
+            if (isFinder) {
+              ctx.fillRect(x, y, cellSize + 0.4, cellSize + 0.4);
+            } else {
+              ctx.beginPath();
+              ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize * 0.44, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+      }
+    }
+
+    function downloadQR() {
+      const canvas = document.getElementById("heartCanvas");
+      const link = document.createElement("a");
+      link.download = "yurakcha-qr-1126.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
+  </script>
+</body>
+</html>
